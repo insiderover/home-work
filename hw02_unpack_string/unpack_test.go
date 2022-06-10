@@ -34,12 +34,20 @@ func TestUnpack(t *testing.T) {
 }
 
 func TestUnpackInvalidString(t *testing.T) {
-	invalidStrings := []string{"3abc", "45", "aaa10b"}
+	invalidStrings := []struct {
+		input       string
+		expectedErr error
+	}{
+		{input: "3abc", expectedErr: ErrFirstCharIsDigit},
+		{input: "abc3", expectedErr: ErrLastCharIsDigit},
+		{input: "45", expectedErr: ErrFirstCharIsDigit},
+		{input: "459887276", expectedErr: ErrFirstCharIsDigit},
+		{input: "aaa10b", expectedErr: ErrTwoDigits},
+		{input: "aa01ab", expectedErr: ErrTwoDigits},
+	}
 	for _, tc := range invalidStrings {
-		tc := tc
-		t.Run(tc, func(t *testing.T) {
-			_, err := Unpack(tc)
-			require.Truef(t, errors.Is(err, ErrInvalidString), "actual error %q", err)
-		})
+		_, err := Unpack(tc.input)
+
+		require.Truef(t, errors.Is(err, tc.expectedErr), "actual error %q expected %q", err, tc.expectedErr)
 	}
 }
