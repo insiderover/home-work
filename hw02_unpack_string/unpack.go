@@ -5,12 +5,10 @@ import (
 	"strconv"
 	"strings"
 	"unicode"
-	"unicode/utf8"
 )
 
 var (
 	ErrFirstCharIsDigit = errors.New("first char is digit")
-	ErrLastCharIsDigit  = errors.New("last char is digit")
 	ErrTwoDigits        = errors.New("two digits in a row")
 )
 
@@ -27,13 +25,8 @@ func Unpack(str string) (string, error) {
 		return "", ErrFirstCharIsDigit
 	}
 
-	// Последний символ
-	if unicode.IsDigit(runeStr[utf8.RuneCount([]byte(str))-1]) {
-		return "", ErrLastCharIsDigit
-	}
-
 	// Основной код
-	var result string
+	var result strings.Builder
 	var digitCounter int
 
 	for i, char := range runeStr {
@@ -48,24 +41,25 @@ func Unpack(str string) (string, error) {
 		}
 
 		if i == len(runeStr)-1 {
-			result += string(char)
+			result.WriteRune(char)
 			continue
 		}
 
 		nextChar := runeStr[i+1]
 
-		if digit, err := strconv.Atoi(string(nextChar)); err == nil {
-			digitCounter = 0
-
-			if digit <= 0 {
-				continue
-			} else {
-				result += strings.Repeat(string(char), digit)
-			}
-		} else {
-			result += string(char)
+		digit, err := strconv.Atoi(string(nextChar))
+		if err != nil {
+			result.WriteRune(char)
+			continue
 		}
+
+		digitCounter = 0
+		if digit <= 0 {
+			continue
+		}
+
+		result.WriteString(strings.Repeat(string(char), digit))
 	}
 
-	return result, nil
+	return result.String(), nil
 }

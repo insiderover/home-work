@@ -14,6 +14,7 @@ func TestUnpack(t *testing.T) {
 	}{
 		{input: "a4bc2d5e", expected: "aaaabccddddde"},
 		{input: "abccd", expected: "abccd"},
+		{input: "abccd0", expected: "abcc"},
 		{input: "", expected: ""},
 		{input: "aaa0b", expected: "aab"},
 		// uncomment if task with asterisk completed
@@ -39,7 +40,6 @@ func TestUnpackInvalidString(t *testing.T) {
 		expectedErr error
 	}{
 		{input: "3abc", expectedErr: ErrFirstCharIsDigit},
-		{input: "abc3", expectedErr: ErrLastCharIsDigit},
 		{input: "45", expectedErr: ErrFirstCharIsDigit},
 		{input: "459887276", expectedErr: ErrFirstCharIsDigit},
 		{input: "aaa10b", expectedErr: ErrTwoDigits},
